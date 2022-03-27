@@ -49,7 +49,21 @@ namespace API.Services
             }
         }
 
+        public void QuickBattle(BattleModel battle)
+        {
+            try
+            {
+                var player1 = battle.BattlePlayer.FirstOrDefault();
+                var player2 = battle.BattlePlayer.LastOrDefault();
 
+                var advantages = _pokemonRepo.GetTypeAdvantages();
+            }
+            catch (Exception exception)
+            {
+                _auditor.Audit(new AuditBuilder(new { exception }, AuditEnums.BattleService, AuditEnums.QuickBattle, AuditEnums.Error));
+                throw;
+            }
+        }
 
         #region Private Methods
 

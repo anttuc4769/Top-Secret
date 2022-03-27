@@ -64,6 +64,31 @@ namespace API.Controllers
             }
         }
 
+        [HttpPost]
+        [Route("Quick/Start")]
+        public BattleModel QuickBattle()
+        {
+            try
+            {
+                var battleModel = new BattleModel();
+                var user = _battleService.GetPlayerPokemon(1);
+                user.Pokemon.First().CurrentlyBattling = true;
+                user.Player = new PlayerModel() { Name = "YOU" };
+                battleModel.BattlePlayer.Add(user);
+                var cp = _battleService.GetPlayerPokemon(1);
+                cp.Pokemon.First().CurrentlyBattling = true;
+                cp.Player = new PlayerModel() { Name = "Computer" };
+                battleModel.BattlePlayer.Add(cp);
+
+                return battleModel;
+            }
+            catch (Exception exception)
+            {
+                _auditor.Audit(new AuditBuilder(new { exception }, AuditEnums.BattleController, AuditEnums.StartBattle, AuditEnums.Error));
+                return new BattleModel() { ErrorFlag = true, Msg = exception.Message };
+            }
+        }
+
 
         #endregion
     }

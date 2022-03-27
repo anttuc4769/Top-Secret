@@ -50,6 +50,8 @@ namespace API.Enums
         GetRandomPokemon,
         GetPlayerPokemon,
         StartBattle,
+        QuickBattle,
+        Battle
 
         #endregion
     }

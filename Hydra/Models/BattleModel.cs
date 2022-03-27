@@ -44,5 +44,6 @@
         public int HpLost { get; set; }
         public int HpLostTurn { get; set; }
         public bool Fainted { get; set; }
+        public bool CurrentlyBattling { get; set; }
     }
 }
