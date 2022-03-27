@@ -60,5 +60,4 @@ namespace API.Models
             Partitions = !string.IsNullOrEmpty(Status) ? new object[] { Main, EventType, $"{EventType}_{Status}" } : new object[] { Main, EventType };
         }
     }
-
 }

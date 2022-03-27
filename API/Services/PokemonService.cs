@@ -99,6 +99,41 @@ namespace API.Services
             }
         }
 
+        public static PokemonModel ConvertTableRecordToModel(TblPokemon record)
+        {
+            var model = new PokemonModel()
+            {
+                Total = record.Total,
+                HP = record.Hp,
+                Attack = record.Attack,
+                Defense = record.Defense,
+                Speed = record.Speed,
+                SpAttack = record.SpAttack,
+                SpDefense = record.SpDefense,
+                Generation = record.Generation,
+                Legendary = record.Legendary,
+                Active = record.Active
+            };
+
+            if (record.Id != null)
+                model.Id = record.Id.Value;
+            if (!string.IsNullOrEmpty(record.Name))
+                model.Name = record.Name;
+            if (!string.IsNullOrEmpty(record.Type1))
+            {
+                Enum.TryParse(record.Type1, true, out PokemonType type);
+                model.Type1 = type;
+            }
+            if (!string.IsNullOrEmpty(record.Type2))
+            {
+                Enum.TryParse(record.Type2, true, out PokemonType type);
+                model.Type2 = type;
+            }
+
+            return model;
+        }
+
+
         #region Private Methods
 
         private static bool ValidateRecord(TblRawPokemonUpload record)
@@ -179,40 +214,6 @@ namespace API.Services
                 model.Generation = int.Parse(record.Generation);
             if (!string.IsNullOrEmpty(record.Legendary))
                 model.Legendary = bool.Parse(record.Legendary);
-
-            return model;
-        }
-
-        private static PokemonModel ConvertTableRecordToModel(TblPokemon record)
-        {
-            var model = new PokemonModel()
-            {
-                Total = record.Total,
-                HP = record.Hp,
-                Attack = record.Attack,
-                Defense = record.Defense,
-                Speed = record.Speed,
-                SpAttack = record.SpAttack,
-                SpDefense = record.SpDefense,
-                Generation = record.Generation,
-                Legendary = record.Legendary,
-                Active = record.Active
-            };
-
-            if (record.Id != null)
-                model.Id = record.Id.Value;
-            if (!string.IsNullOrEmpty(record.Name))
-                model.Name = record.Name;
-            if (!string.IsNullOrEmpty(record.Type1))
-            {
-                Enum.TryParse(record.Type1, true, out PokemonType type);
-                model.Type1 = type;
-            }
-            if (!string.IsNullOrEmpty(record.Type2))
-            {
-                Enum.TryParse(record.Type2, true, out PokemonType type);
-                model.Type2 = type;
-            }
 
             return model;
         }

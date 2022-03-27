@@ -58,13 +58,19 @@
     <Folder Include="Properties" />
     <Folder Include="Deployments" />
     <Folder Include="Tables" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Deployments\localhost.publish.xml" />
+    <None Include="Scripts\Script.UploadPokemonTypeAdvantage.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\Test.sql" />
+    <Build Include="Tables\Log.sql" />
     <Build Include="Tables\RawPokemonUpload.sql" />
     <Build Include="Tables\Pokemon.sql" />
+    <Build Include="Tables\PokemonTypeAdvantage.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Script.PostDeployment.sql" />
   </ItemGroup>
 </Project>

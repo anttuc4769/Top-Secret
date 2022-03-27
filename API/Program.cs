@@ -27,6 +27,7 @@ builder.Services.AddTransient<IActions, Actions>();
 builder.Services.AddSingleton<IProcessFileService, ProcessPokemonFileService>();
 builder.Services.AddTransient<IUploadFileService, UploadPokemonFileService>();
 builder.Services.AddTransient<IPokemonService, PokemonService>();
+builder.Services.AddTransient<IBattleService, BattleService>();
 builder.Services.AddTransient<IAuditor<AuditRow>, AzureAuditor<AuditRow>>();
 
 #endregion

@@ -28,6 +28,8 @@ namespace API.Enums
         PokemonService, 
         PokemonController,
         PokemonRepository,
+        BattleController,
+        BattleService,
 
         #endregion
 
@@ -42,6 +44,12 @@ namespace API.Enums
         QueryPokemonsEqual,
         InsertPokemon,
         GetDataFromRawTable,
+        GetTypeAdvantages,
+        QueryPokemon,
+        GetPokemon,
+        GetRandomPokemon,
+        GetPlayerPokemon,
+        StartBattle,
 
         #endregion
     }

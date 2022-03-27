@@ -11,6 +11,9 @@ namespace API.Repositories
     {
         List<TblRawPokemonUpload> GetDataFromRawTable();
         void InsertPokemon(TblPokemon record);
+        TblPokemon? GetPokemon(int id);
+        TblPokemon GetRandomPokemon();
+        List<TblPokemonTypeAdvantage> GetTypeAdvantages();
         List<TblPokemon> SearchPokemon(SearchType searchType, PaginationModel? pagination = null, string? name = null, PokemonType? type1 = null, PokemonType? type2 = null, int? total = null, int? attack = null, int? defense = null, int? spAttack = null, int? spDefense = null, int? speed = null, int? generation = null, bool? legendary = null);
     }
 
@@ -57,6 +60,50 @@ namespace API.Repositories
             }
         }
 
+        public TblPokemon? GetPokemon(int id)
+        {
+            try
+            {
+                return QueryPokemon(id);
+            }
+            catch (Exception exception)
+            {
+                _auditor.Audit(new AuditBuilder(new { id, exception }, AuditEnums.PokemonRepository, AuditEnums.GetPokemon, AuditEnums.Error));
+                throw;
+            }
+        }
+
+        public TblPokemon GetRandomPokemon()
+        {
+            try
+            {
+                var rand = new Random();
+                var pokemons = QueryPokemonsEqual();
+                if (!pokemons.Any())
+                    throw new Exception();
+                var pokemon = pokemons[rand.Next(pokemons.Count)];
+                return pokemon;
+            }
+            catch (Exception exception)
+            {
+                _auditor.Audit(new AuditBuilder(new { exception }, AuditEnums.PokemonRepository, AuditEnums.GetRandomPokemon, AuditEnums.Error));
+                throw;
+            }
+        }
+
+        public List<TblPokemonTypeAdvantage> GetTypeAdvantages()
+        {
+            try
+            {
+                return _dataContextService.GetDataContext().TblPokemonTypeAdvantages.ToList();
+            }
+            catch (Exception exception)
+            {
+                _auditor.Audit(new AuditBuilder(new { exception }, AuditEnums.PokemonRepository, AuditEnums.GetTypeAdvantages, AuditEnums.Error));
+                throw;
+            }
+        }
+
         public List<TblPokemon> SearchPokemon(
             SearchType searchType,
             PaginationModel? pagination = null,
@@ -92,6 +139,27 @@ namespace API.Repositories
         }
 
         #region Private Methods
+
+        private TblPokemon? QueryPokemon(int? id = null, string? name = null)
+        {
+            try
+            {
+                var queryable = _dataContextService.GetDataContext().TblPokemons.AsQueryable();
+
+                if (!string.IsNullOrEmpty(name))
+                    queryable = queryable.Where(a => a.Name == name).AsQueryable();
+                if (id != null)
+                    queryable = queryable.Where(a => a.Id == id.Value).AsQueryable();
+
+
+                return queryable.FirstOrDefault();
+            }
+            catch (Exception exception)
+            {
+                _auditor.Audit(new AuditBuilder(new { id, name, exception }, AuditEnums.PokemonRepository, AuditEnums.Private, AuditEnums.QueryPokemon, AuditEnums.Error));
+                throw;
+            }
+        }
 
         private List<TblPokemon> QueryPokemonsEqual(PaginationModel? pagination = null, string? name = null, PokemonType? type1 = null, PokemonType? type2 = null, int? total = null, int? attack = null, int? defense = null, int? spAttack = null, int? spDefense = null, int? speed = null, int? generation = null, bool? legendary = null)
         {

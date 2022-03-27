@@ -1,0 +1,1 @@
+﻿:r .\Script.UploadPokemonTypeAdvantage.sql

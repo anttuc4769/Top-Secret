@@ -16,16 +16,27 @@ namespace API.Repositories.Models
         {
         }
 
+        public virtual DbSet<TblLog> TblLogs { get; set; } = null!;
         public virtual DbSet<TblPokemon> TblPokemons { get; set; } = null!;
+        public virtual DbSet<TblPokemonTypeAdvantage> TblPokemonTypeAdvantages { get; set; } = null!;
         public virtual DbSet<TblRawPokemonUpload> TblRawPokemonUploads { get; set; } = null!;
-        public virtual DbSet<TblTest> TblTests { get; set; } = null!;
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<TblLog>(entity =>
+            {
+                entity.ToTable("TblLog");
+
+                entity.Property(e => e.Created).HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.Text).HasMaxLength(50);
+            });
+
             modelBuilder.Entity<TblPokemon>(entity =>
             {
                 entity.HasKey(e => e.RecordId)
-                    .HasName("PK__TblPokem__FBDF78E986B984D0");
+                    .HasName("PK__TblPokem__FBDF78E91D86FAC3");
 
                 entity.ToTable("TblPokemon");
 
@@ -38,6 +49,15 @@ namespace API.Repositories.Models
                 entity.Property(e => e.Type1).HasMaxLength(20);
 
                 entity.Property(e => e.Type2).HasMaxLength(20);
+            });
+
+            modelBuilder.Entity<TblPokemonTypeAdvantage>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("TblPokemonTypeAdvantage");
+
+                entity.Property(e => e.Attacking).HasMaxLength(50);
             });
 
             modelBuilder.Entity<TblRawPokemonUpload>(entity =>
@@ -75,13 +95,6 @@ namespace API.Repositories.Models
                 entity.Property(e => e.PokemonType1).HasMaxLength(20);
 
                 entity.Property(e => e.PokemonType2).HasMaxLength(20);
-            });
-
-            modelBuilder.Entity<TblTest>(entity =>
-            {
-                entity.ToTable("TblTest");
-
-                entity.Property(e => e.Text).HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);

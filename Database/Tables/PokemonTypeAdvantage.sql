@@ -1,0 +1,21 @@
+﻿CREATE TABLE [dbo].[TblPokemonTypeAdvantage](
+	[Attacking] [nvarchar](50) NOT NULL,
+	[Normal] [tinyint] NOT NULL,
+	[Fire] [float] NOT NULL,
+	[Water] [float] NOT NULL,
+	[Electric] [float] NOT NULL,
+	[Grass] [float] NOT NULL,
+	[Ice] [float] NOT NULL,
+	[Fighting] [float] NOT NULL,
+	[Poison] [float] NOT NULL,
+	[Ground] [float] NOT NULL,
+	[Flying] [float] NOT NULL,
+	[Psychic] [float] NOT NULL,
+	[Bug] [float] NOT NULL,
+	[Rock] [float] NOT NULL,
+	[Ghost] [float] NOT NULL,
+	[Dragon] [float] NOT NULL,
+	[Dark] [float] NOT NULL,
+	[Steel] [float] NOT NULL,
+	[Fairy] [float] NOT NULL
+) ON [PRIMARY]
