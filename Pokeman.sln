@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32210.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "API\API.csproj", "{75BEEE97-6116-4C43-B833-8787BA5452C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{75BEEE97-6116-4C43-B833-8787BA5452C9}"
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{BDB6445D-68B3-40ED-8E34-5DCC39DF35F8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hydra", "Hydra\Hydra.csproj", "{0775D0B7-9935-4F85-A59A-5E8ACECDC7DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hydra", "Hydra\Hydra.csproj", "{0775D0B7-9935-4F85-A59A-5E8ACECDC7DE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MVC", "MVC\MVC.csproj", "{1CCC2018-39E3-4A01-9FDC-8A2083B08675}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MVC", "MVC\MVC.csproj", "{1CCC2018-39E3-4A01-9FDC-8A2083B08675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API_Tests", "API_Tests\API_Tests.csproj", "{F7448457-7213-4687-8547-7226E0F2FD9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{1CCC2018-39E3-4A01-9FDC-8A2083B08675}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CCC2018-39E3-4A01-9FDC-8A2083B08675}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CCC2018-39E3-4A01-9FDC-8A2083B08675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7448457-7213-4687-8547-7226E0F2FD9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7448457-7213-4687-8547-7226E0F2FD9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7448457-7213-4687-8547-7226E0F2FD9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7448457-7213-4687-8547-7226E0F2FD9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

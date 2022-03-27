@@ -1,4 +1,5 @@
 using API.MockActions;
+using API.Models;
 using API.Repositories;
 using API.Repositories.Models;
 using API.Services;
@@ -26,6 +27,7 @@ builder.Services.AddTransient<IActions, Actions>();
 builder.Services.AddSingleton<IProcessFileService, ProcessPokemonFileService>();
 builder.Services.AddTransient<IUploadFileService, UploadPokemonFileService>();
 builder.Services.AddTransient<IPokemonService, PokemonService>();
+builder.Services.AddTransient<IAuditor<AuditRow>, AzureAuditor<AuditRow>>();
 
 #endregion
 

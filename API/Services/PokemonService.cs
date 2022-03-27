@@ -1,4 +1,6 @@
-﻿using API.Repositories;
+﻿using API.Enums;
+using API.Models;
+using API.Repositories;
 using API.Repositories.Models;
 using Hydra.Enums;
 using Hydra.Models;
@@ -8,7 +10,8 @@ namespace API.Services
     public interface IPokemonService
     {
         void UploadPokemon();
-        PokemonListModel SearchPokemon(SearchType searchType = SearchType.Equal, string? name = null, PokemonType? type1 = null, PokemonType? type2 = null, int? total = null, int? attack = null, int? defense = null, int? spAttack = null, int? spDefense = null, int? speed = null, int? generation = null, bool? legendary = null);
+        PokemonTypesModel PokemonTypes();
+        PokemonListModel SearchPokemon(SearchType searchType = SearchType.Equal, PaginationModel? pagination = null, string? name = null, PokemonType? type1 = null, PokemonType? type2 = null, int? total = null, int? attack = null, int? defense = null, int? spAttack = null, int? spDefense = null, int? speed = null, int? generation = null, bool? legendary = null);
     }
 
     public class PokemonService : IPokemonService
@@ -16,10 +19,12 @@ namespace API.Services
         #region Properties
         
         private readonly IPokemonRepository _pokemonRepo;
+        private readonly IAuditor<AuditRow> _auditor;
 
-        public PokemonService(IPokemonRepository pokemonRepo)
+        public PokemonService(IPokemonRepository pokemonRepo, IAuditor<AuditRow> auditor)
         {
             _pokemonRepo = pokemonRepo;
+            _auditor = auditor;
         }
 
         #endregion
@@ -54,15 +59,31 @@ namespace API.Services
             }
             catch (Exception exception)
             {
-
+                _auditor.Audit(new AuditBuilder(new { exception }, AuditEnums.PokemonService, AuditEnums.UploadPokemon, AuditEnums.Error));
+                throw;
             }
         }
 
-        public PokemonListModel SearchPokemon(SearchType searchType = SearchType.Equal, string? name = null, PokemonType? type1 = null, PokemonType? type2 = null, int? total = null, int? attack = null, int? defense = null, int? spAttack = null, int? spDefense = null, int? speed = null, int? generation = null, bool? legendary = null) 
+        public PokemonTypesModel PokemonTypes()
         {
             try
             {
-                var searchResults = _pokemonRepo.SearchPokemon(searchType, name, type1, type2, total, attack, defense, spAttack, spDefense, speed, generation, legendary);
+                var types = Enum.GetValues(typeof(PokemonType)).Cast<PokemonType>().Select(d => new PokemonTypeModel() { Text = d.ToString(), Value = (int)d }).ToList();
+
+                return new PokemonTypesModel() { PokemonTypes = types };
+            }
+            catch (Exception exception)
+            {
+                _auditor.Audit(new AuditBuilder(new {exception}, AuditEnums.PokemonService, AuditEnums.PokemonTypes, AuditEnums.Error));
+                throw;
+            }
+        }
+
+        public PokemonListModel SearchPokemon(SearchType searchType = SearchType.Equal, PaginationModel? pagination = null, string? name = null, PokemonType? type1 = null, PokemonType? type2 = null, int? total = null, int? attack = null, int? defense = null, int? spAttack = null, int? spDefense = null, int? speed = null, int? generation = null, bool? legendary = null) 
+        {
+            try
+            {
+                var searchResults = _pokemonRepo.SearchPokemon(searchType, pagination, name, type1, type2, total, attack, defense, spAttack, spDefense, speed, generation, legendary);
 
                 if (!searchResults.Any())
                     return new PokemonListModel() {Msg = "No Data"};
@@ -73,23 +94,21 @@ namespace API.Services
             }
             catch (Exception exception)
             {
+                _auditor.Audit(new AuditBuilder(new { searchType, pagination, name, type1, type2, total, attack, defense, spDefense, spAttack, speed, generation, legendary, exception }, AuditEnums.PokemonService, AuditEnums.SearchPokemon, AuditEnums.Error));
                 throw;
             }
         }
 
         #region Private Methods
 
-        private bool ValidateRecord(TblRawPokemonUpload record)
+        private static bool ValidateRecord(TblRawPokemonUpload record)
         {
             try
             {
-
-                if(string.IsNullOrEmpty(record.PokemonName))
+                if (string.IsNullOrEmpty(record.PokemonName))
                     return false;
 
-                var isValid = true;
-
-                isValid = ValidateInt(record.PokemonTotal);
+                var isValid = ValidateInt(record.PokemonTotal);
                 if (!isValid)
                     return isValid;
 
@@ -126,128 +145,104 @@ namespace API.Services
         
         private static PokemonModel ConvertRawTableRecordToModel(TblRawPokemonUpload record)
         {
-            try
-            {
-                var model = new PokemonModel();
+            var model = new PokemonModel();
 
-                if (!string.IsNullOrEmpty(record.PokemonId))
-                    model.Id = int.Parse(record.PokemonId);
-                if (!string.IsNullOrEmpty(record.PokemonName))
-                    model.Name = record.PokemonName;
-                if (!string.IsNullOrEmpty(record.PokemonType1))
-                {
-                    Enum.TryParse(record.PokemonType1, true, out PokemonType type);
-                    model.Type1 = type;
-                }
-                if (!string.IsNullOrEmpty(record.PokemonType2))
-                {
-                    Enum.TryParse(record.PokemonType2, true, out PokemonType type);
-                    model.Type2 = type;
-                }
-                if (!string.IsNullOrEmpty(record.PokemonTotal))
-                    model.Total = int.Parse(record.PokemonTotal);
-                if (!string.IsNullOrEmpty(record.PokemonHp))
-                    model.HP = int.Parse(record.PokemonHp);
-                if (!string.IsNullOrEmpty(record.PokemonAttack))
-                    model.Attack = int.Parse(record.PokemonAttack);
-                if (!string.IsNullOrEmpty(record.PokemonDefense))
-                    model.Defense = int.Parse(record.PokemonDefense);
-                if (!string.IsNullOrEmpty(record.PokemonSpAttack))
-                    model.SpAttack = int.Parse(record.PokemonSpAttack);
-                if (!string.IsNullOrEmpty(record.PokemonSpDefense))
-                    model.SpDefense = int.Parse(record.PokemonSpDefense);
-                if (!string.IsNullOrEmpty(record.PokemonSpeed))
-                    model.Speed = int.Parse(record.PokemonSpeed);
-                if (!string.IsNullOrEmpty(record.Generation))
-                    model.Generation = int.Parse(record.Generation);
-                if (!string.IsNullOrEmpty(record.Legendary))
-                    model.Legendary = bool.Parse(record.Legendary);
-
-                return model;
-            }
-            catch (Exception)
+            if (!string.IsNullOrEmpty(record.PokemonId))
+                model.Id = int.Parse(record.PokemonId);
+            if (!string.IsNullOrEmpty(record.PokemonName))
+                model.Name = record.PokemonName;
+            if (!string.IsNullOrEmpty(record.PokemonType1))
             {
-               //would normally log to logservice -> just have no time for this exercise
-               throw;
+                Enum.TryParse(record.PokemonType1, true, out PokemonType type);
+                model.Type1 = type;
             }
+            if (!string.IsNullOrEmpty(record.PokemonType2))
+            {
+                Enum.TryParse(record.PokemonType2, true, out PokemonType type);
+                model.Type2 = type;
+            }
+            if (!string.IsNullOrEmpty(record.PokemonTotal))
+                model.Total = int.Parse(record.PokemonTotal);
+            if (!string.IsNullOrEmpty(record.PokemonHp))
+                model.HP = int.Parse(record.PokemonHp);
+            if (!string.IsNullOrEmpty(record.PokemonAttack))
+                model.Attack = int.Parse(record.PokemonAttack);
+            if (!string.IsNullOrEmpty(record.PokemonDefense))
+                model.Defense = int.Parse(record.PokemonDefense);
+            if (!string.IsNullOrEmpty(record.PokemonSpAttack))
+                model.SpAttack = int.Parse(record.PokemonSpAttack);
+            if (!string.IsNullOrEmpty(record.PokemonSpDefense))
+                model.SpDefense = int.Parse(record.PokemonSpDefense);
+            if (!string.IsNullOrEmpty(record.PokemonSpeed))
+                model.Speed = int.Parse(record.PokemonSpeed);
+            if (!string.IsNullOrEmpty(record.Generation))
+                model.Generation = int.Parse(record.Generation);
+            if (!string.IsNullOrEmpty(record.Legendary))
+                model.Legendary = bool.Parse(record.Legendary);
+
+            return model;
         }
 
         private static PokemonModel ConvertTableRecordToModel(TblPokemon record)
         {
-            try
+            var model = new PokemonModel()
             {
-                var model = new PokemonModel()
-                {
-                    Total = record.Total,
-                    HP = record.Hp,
-                    Attack = record.Attack,
-                    Defense = record.Defense,
-                    Speed = record.Speed,
-                    SpAttack = record.SpAttack,
-                    SpDefense = record.SpDefense,
-                    Generation = record.Generation,
-                    Legendary = record.Legendary,
-                    Active = record.Active
-                };
+                Total = record.Total,
+                HP = record.Hp,
+                Attack = record.Attack,
+                Defense = record.Defense,
+                Speed = record.Speed,
+                SpAttack = record.SpAttack,
+                SpDefense = record.SpDefense,
+                Generation = record.Generation,
+                Legendary = record.Legendary,
+                Active = record.Active
+            };
 
-                if (record.Id != null)
-                    model.Id = record.Id.Value;
-                if (!string.IsNullOrEmpty(record.Name))
-                    model.Name = record.Name;
-                if (!string.IsNullOrEmpty(record.Type1))
-                {
-                    Enum.TryParse(record.Type1, true, out PokemonType type);
-                    model.Type1 = type;
-                }
-                if (!string.IsNullOrEmpty(record.Type2))
-                {
-                    Enum.TryParse(record.Type2, true, out PokemonType type);
-                    model.Type2 = type;
-                }
-
-                return model;
-            }
-            catch (Exception)
+            if (record.Id != null)
+                model.Id = record.Id.Value;
+            if (!string.IsNullOrEmpty(record.Name))
+                model.Name = record.Name;
+            if (!string.IsNullOrEmpty(record.Type1))
             {
-                //would normally log to logservice -> just have no time for this exercise
-                throw;
+                Enum.TryParse(record.Type1, true, out PokemonType type);
+                model.Type1 = type;
             }
+            if (!string.IsNullOrEmpty(record.Type2))
+            {
+                Enum.TryParse(record.Type2, true, out PokemonType type);
+                model.Type2 = type;
+            }
+
+            return model;
         }
-
 
         private static TblPokemon ModelToTableEntity(PokemonModel model)
         {
-            try
+            var tblEntity = new TblPokemon()
             {
-                var tblEntity = new TblPokemon()
-                {
-                    Id = model.Id,
-                    Name = model.Name,
-                    Type1 = model.Type1.ToString(),
-                    Total = model.Total,
-                    Hp = model.HP,
-                    Attack = model.Attack,
-                    Defense = model.Defense,
-                    SpAttack = model.SpAttack,
-                    SpDefense = model.SpDefense,
-                    Speed = model.Speed,
-                    Generation = model.Generation,
-                    Legendary = model.Legendary,
-                    Active = model.Active
-                };
+                Id = model.Id,
+                Name = model.Name,
+                Type1 = model.Type1.ToString(),
+                Total = model.Total,
+                Hp = model.HP,
+                Attack = model.Attack,
+                Defense = model.Defense,
+                SpAttack = model.SpAttack,
+                SpDefense = model.SpDefense,
+                Speed = model.Speed,
+                Generation = model.Generation,
+                Legendary = model.Legendary,
+                Active = model.Active
+            };
 
-                if (model.Type2 != null)
-                    tblEntity.Type2 = model.Type2.ToString();
+            if (model.Type2 != null)
+                tblEntity.Type2 = model.Type2.ToString();
 
-                return tblEntity;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            return tblEntity;
         }
 
-        protected virtual bool ValidateInt(string? value)
+        private static bool ValidateInt(string? value)
         {
             try
             {
@@ -262,79 +257,44 @@ namespace API.Services
 
         private static void UpdatePokemonStats(PokemonModel pokemon)
         {
-            try
-            {
-                if (pokemon.Type1 == PokemonType.Steel || pokemon.Type2 == PokemonType.Steel)
-                    UpdateSteelPokemon(pokemon);
+            if (pokemon.Type1 == PokemonType.Steel || pokemon.Type2 == PokemonType.Steel)
+                UpdateSteelPokemon(pokemon);
 
-                if (pokemon.Type1 == PokemonType.Fire || pokemon.Type2 == PokemonType.Fire)
-                    UpdateFirePokemon(pokemon);
+            if (pokemon.Type1 == PokemonType.Fire || pokemon.Type2 == PokemonType.Fire)
+                UpdateFirePokemon(pokemon);
 
-                if (pokemon.Type1 == PokemonType.Bug && pokemon.Type2 == PokemonType.Flying)
-                    UpdateFlyingBugPokemon(pokemon);
-                else if (pokemon.Type2 == PokemonType.Flying && pokemon.Type1 == PokemonType.Bug)
-                    UpdateFlyingBugPokemon(pokemon);
+            if (pokemon.Type1 == PokemonType.Bug && pokemon.Type2 == PokemonType.Flying)
+                UpdateFlyingBugPokemon(pokemon);
+            else if (pokemon.Type2 == PokemonType.Flying && pokemon.Type1 == PokemonType.Bug)
+                UpdateFlyingBugPokemon(pokemon);
 
-                if (pokemon.Name.ToLower().StartsWith("g"))
-                    UpdatePokemonThatStartWithG(pokemon);
-            }
-            catch (Exception)
-            {
-
-            }
+            if (pokemon.Name.ToLower().StartsWith("g"))
+                UpdatePokemonThatStartWithG(pokemon);
         }
 
         private static void UpdateSteelPokemon(PokemonModel entity)
         {
-            try
-            {
-                entity.HP *= 2;
-            }
-            catch (Exception)
-            {
-                //would normally log to logservice -> just have no time for this exercise
-            }
+            entity.HP *= 2;
         }
 
         private static void UpdateFirePokemon(PokemonModel pokemon)
         {
-            try
-            {
-                const int percent = 10;
-                var value = pokemon.Attack / percent;
-                pokemon.Attack -= value;
-            }
-            catch (Exception)
-            {
-                //would normally log to logservice -> just have no time for this exercise
-            }
+            const int percent = 10;
+            var value = pokemon.Attack / percent;
+            pokemon.Attack -= value;
         }
 
         private static void UpdateFlyingBugPokemon(PokemonModel pokemon)
         {
-            try
-            {
-                const int percent = 10;
-                var value = pokemon.Speed / percent;
-                pokemon.Speed += value;
-            }
-            catch (Exception)
-            {
-                //would normally log to logservice -> just have no time for this exercise
-            }
+            const int percent = 10;
+            var value = pokemon.Speed / percent;
+            pokemon.Speed += value;
         }
 
         private static void UpdatePokemonThatStartWithG(PokemonModel pokemon)
         {
-            try
-            {
-                var value = pokemon.Name.ToLower().Count(a => a != 'g') * 5;
-                pokemon.Defense += value;
-            }
-            catch (Exception)
-            {
-                //would normally log to logservice -> just have no time for this exercise
-            }
+            var value = pokemon.Name.ToLower().Count(a => a != 'g') * 5;
+            pokemon.Defense += value;
         }
 
         #endregion
