@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using API.Models;
+﻿using API.Models;
 using API.Repositories;
 using API.Repositories.Models;
 using API.Services;
 using Hydra.Enums;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using IConfiguration = Castle.Core.Configuration.IConfiguration;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace API_Tests.PokemonService
 {
