@@ -86,7 +86,7 @@ namespace API.Services
                 var searchResults = _pokemonRepo.SearchPokemon(searchType, pagination, name, type1, type2, total, attack, defense, spAttack, spDefense, speed, generation, legendary);
 
                 if (!searchResults.Any())
-                    return new PokemonListModel() {Msg = "No Data"};
+                    return new PokemonListModel() { Msg = "No Data" };
 
                 var convertedResults = searchResults.Select(ConvertTableRecordToModel).ToList();
 
